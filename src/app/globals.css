@@ -1,0 +1,238 @@
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --primary-color: #2563eb;
+  --primary-glow: rgba(37, 99, 235, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+h1, h2, h3, h4, h5, h6, .admin-page-title, .admin-view-title, .admin-card-label {
+  text-shadow: none !important;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(28, 50, 108, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure all tables render correctly and stretch to full width */
+table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Better inputs styling */
+input, select, textarea {
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  padding: 10px 14px;
+  transition: var(--transition-smooth);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 12px var(--primary-glow);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Ensure touch targets meet guidelines but look premium */
+button, a.btn, [role="button"] {
+  min-height: 40px;
+  min-width: 44px;
+  transition: var(--transition-smooth);
+  cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+select {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  /* Prevent horizontal overflow from any element */
+  div, section, main, form {
+    max-width: 100vw;
+  }
+}
+
+.logout-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: unset;
+  min-width: unset;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+  filter: brightness(1.1);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .logout-btn {
+    top: 12px;
+    right: 12px;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+}
+
+/* Global Branding Header */
+.global-brand-header {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+}
+
+.global-brand-logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+}
+
+.global-brand-text {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #0b1437;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .global-brand-header {
+    display: none;
+  }
+}
+
+/* Universal Mobile & Tablet Responsiveness Enhancements */
+@media (max-width: 1024px) {
+  body {
+    font-size: 15px;
+  }
+  .admin-page-content,
+  .start-page-content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Tables & Lists Touch Responsiveness */
+  .admin-table-wrapper,
+  .table-responsive,
+  .overflow-x-auto {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 500px; /* Allow smooth horizontal swipe on phone screens */
+  }
+
+  /* Form Controls Full Width */
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100% !important;
+    font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+    box-sizing: border-box !important;
+  }
+
+  /* Modal Dialog Responsiveness */
+  .modal-content,
+  .admin-form-container,
+  [role="dialog"] {
+    width: 95% !important;
+    max-width: 100% !important;
+    margin: 10px auto !important;
+    padding: 16px !important;
+    border-radius: 16px !important;
+  }
+
+  /* Typography Adjustments */
+  h1 {
+    font-size: 24px !important;
+  }
+  h2 {
+    font-size: 20px !important;
+  }
+  h3 {
+    font-size: 18px !important;
+  }
+}
+
+
