@@ -63,7 +63,7 @@ const ReportClassSelector: React.FC<ReportClassSelectorProps> = ({
                 </button>
                 <div style={{ flex: '1 1 auto' }}>
                     <h2 className="admin-view-title" style={{ margin: 0, color: '#0f172a', fontWeight: 900 }}>
-                        📄 უწყისის გენერირება — კლასების არჩევა
+                        📄 უწყისის გენერირება — ჯგუფის არჩევა
                     </h2>
                 </div>
                 <div style={{
@@ -75,7 +75,7 @@ const ReportClassSelector: React.FC<ReportClassSelectorProps> = ({
                     fontWeight: 800,
                     color: '#2563eb'
                 }}>
-                    სულ {filteredClasses.length} კლასი
+                    სულ {filteredClasses.length} ჯგუფი
                 </div>
             </header>
 
@@ -96,7 +96,7 @@ const ReportClassSelector: React.FC<ReportClassSelectorProps> = ({
                     <SearchIcon size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                     <input
                         type="text"
-                        placeholder="🔍 მოძებნეთ კლასი (მაგ: 1ა, 10ბ)..."
+                        placeholder="🔍 მოძებნეთ ჯგუფი (მაგ: 2-3 წელი)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -117,10 +117,10 @@ const ReportClassSelector: React.FC<ReportClassSelectorProps> = ({
                 {/* Category Buttons */}
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {[
-                        { id: 'all', label: 'ყველა კლასი' },
-                        { id: 'primary', label: 'დაწყებითი (I-IV)' },
-                        { id: 'basic', label: 'საბაზო (V-IX)' },
-                        { id: 'high', label: 'საშუალო (X-XII)' },
+                        { id: 'all', label: 'ყველა ჯგუფი' },
+                        { id: 'primary', label: 'მცირე ჯგუფები (1-3 წელი)' },
+                        { id: 'basic', label: 'საშუალო ჯგუფები (3-5 წელი)' },
+                        { id: 'high', label: 'უფროსი / სასკოლო (5-6 წელი)' },
                     ].map(cat => (
                         <button
                             key={cat.id}

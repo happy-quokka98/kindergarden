@@ -509,9 +509,9 @@ const Admin: React.FC = () => {
             { icon: FaUserGraduate, label: 'აღსაზრდელები' },
             { icon: FaChalkboardTeacher, label: 'აღმზრდელები' },
 
-            { icon: IoSchoolSharp, label: 'ჯგუფი' },
+            { icon: IoSchoolSharp, label: 'ასაკობრივი ჯგუფები' },
             { icon: FaHistory, label: 'ისტორია' },
-            { icon: FaCalendarAlt, label: 'გაკვეთილების კალენდარი' },
+            { icon: FaCalendarAlt, label: 'დღის რეჟიმის კალენდარი' },
             { icon: FaBullhorn, label: 'განცხადებები' },
             { icon: FaComments, label: 'ჩატი' },
         ];
@@ -522,7 +522,7 @@ const Admin: React.FC = () => {
     ];
 
     const classItems: { icon: IconType; label: string }[] = [
-        { icon: IoSchoolSharp, label: 'ჯგუფის დამატება' },
+        { icon: IoSchoolSharp, label: 'ჯგუფის დამატება (ასაკი)' },
         { icon: FaBookReader, label: 'აქტივობის დამატება' },
         { icon: MdEdit, label: 'ჯგუფის რედაქტირება' },
         { icon: FaHistory, label: 'ჯგუფების გადაწევა' },
@@ -604,19 +604,19 @@ const Admin: React.FC = () => {
             try {
                 const res = await fetch(`/api/student/delete/${studentId}`, { method: 'DELETE' });
                 if (res.ok) {
-                    showPopup('მოსწავლე წარმატებით წაიშალა.', 'success');
+                    showPopup('აღსაზრდელი წარმატებით წაიშალა.', 'success');
                     if (classFilter) fetchStudents(classFilter, parallelFilter);
                 } else {
-                    showPopup('მოსწავლის წაშლა ვერ მოხერხდა.', 'error');
+                    showPopup('აღსაზრდელის წაშლა ვერ მოხერხდა.', 'error');
                 }
             } catch (err) {
-                showPopup('მოსწავლის წაშლისას მოხდა შეცდომა.', 'error');
+                showPopup('აღსაზრდელის წაშლისას მოხდა შეცდომა.', 'error');
             }
             setConfirmation(null);
         };
 
         setConfirmation({
-            message: 'დარწმუნებული ხართ, რომ გსურთ ამ მოსწავლის წაშლა?',
+            message: 'დარწმუნებული ხართ, რომ გსურთ ამ აღსაზრდელის წაშლა?',
             onConfirm: performDelete,
         });
     };
@@ -642,7 +642,7 @@ const Admin: React.FC = () => {
         };
 
         setConfirmation({
-            message: 'დარწმუნებული ხართ, რომ გსურთ ამ მოსწავლის პაროლის აღდგენა?',
+            message: 'დარწმუნებული ხართ, რომ გსურთ ამ აღსაზრდელის პაროლის აღდგენა?',
             onConfirm: performReset,
         });
     };
@@ -670,17 +670,17 @@ const Admin: React.FC = () => {
             });
 
             if (res.ok) {
-                showPopup('მოსწავლე წარმატებით განახლდა.', 'success');
+                showPopup('აღსაზრდელი წარმატებით განახლდა.', 'success');
                 setIsEditModalOpen(false);
                 if (classFilter) fetchStudents(classFilter, parallelFilter);
             } else {
                 const resData = await res.json().catch(() => null);
-                const errorMsg = resData?.message || 'მოსწავლის განახლება ვერ მოხერხდა.';
+                const errorMsg = resData?.message || 'აღსაზრდელის განახლება ვერ მოხერხდა.';
                 showPopup(errorMsg, 'error');
             }
         } catch (err) {
             console.error(err);
-            showPopup('მოსწავლის განახლებისას მოხდა შეცდომა.', 'error');
+            showPopup('აღსაზრდელის განახლებისას მოხდა შეცდომა.', 'error');
         }
     };
 

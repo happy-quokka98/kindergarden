@@ -72,10 +72,10 @@ const TutorClassDetails: React.FC<{
           </div>
           <div>
             <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', fontWeight: 800 }}>
-              სადამრიგებლო კლასი
+              სადამრიგებლო ჯგუფი
             </div>
             <div style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>
-              {subjectsList.length} საგანი
+              {subjectsList.length} საგანი / აქტივობა
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ const TutorClassDetails: React.FC<{
               gap: '8px'
             }}
           >
-            📊 კლასის სრული ჟურნალი (ყველა ნიშანი)
+            📊 ჯგუფის სრული ჟურნალი
           </button>
         )}
       </div>

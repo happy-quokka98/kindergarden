@@ -31,7 +31,7 @@ const AddStudentForm: React.FC<AddStudentFormProps> = ({
             </header>
 
             <div className="admin-form-container animate-zoom-in">
-                <h2 className="admin-form-title">მოსწავლის დამატება</h2>
+                <h2 className="admin-form-title">აღსაზრდელის დამატება</h2>
                 <form onSubmit={onAddStudent} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     <div className="admin-form-group">
                         <label className="admin-label">სახელი</label>
@@ -46,16 +46,16 @@ const AddStudentForm: React.FC<AddStudentFormProps> = ({
                         <input className="admin-input" id="ID" name="ID" type="text" placeholder="შეიყვანეთ პირადი ნომერი" required />
                     </div>
                     <div className="admin-form-group">
-                        <label className="admin-label">კლასი</label>
+                        <label className="admin-label">ასაკობრივი ჯგუფი</label>
                         <select className="admin-select" id="class_id" name="class_id" required defaultValue="">
-                            <option value="" disabled>აირჩიეთ კლასი</option>
+                            <option value="" disabled>აირჩიეთ ჯგუფი</option>
                             {classes.map(c => (
                                 <option key={c._id} value={c._id}>{c.classname}</option>
                             ))}
                         </select>
                     </div>
                     <button className="admin-submit-btn" type="submit" style={{ background: selectedColor }}>
-                        მოსწავლის დამატება
+                        აღსაზრდელის დამატება
                     </button>
                 </form>
             </div>

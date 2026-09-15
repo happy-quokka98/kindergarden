@@ -157,7 +157,7 @@ const StudentList: React.FC<StudentListProps> = ({
                 <button className="admin-back-btn" onClick={onBackClick}>
                     <ArrowLeftIcon size={20} /> უკან
                 </button>
-                <h2 className="admin-view-title">მოსწავლეთა სია ({finalFilteredStudents.length})</h2>
+                <h2 className="admin-view-title">აღსაზრდელთა სია ({finalFilteredStudents.length})</h2>
             </header>
 
             {/* Manual Search Bar */}
@@ -166,7 +166,7 @@ const StudentList: React.FC<StudentListProps> = ({
                     <SearchIcon style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} size={18} />
                     <input
                         type="text"
-                        placeholder="ძებნა ხელით (სახელი, გვარი, პ/ნ, კლასი)..."
+                        placeholder="ძებნა ხელით (სახელი, გვარი, პ/ნ, ჯგუფი)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -192,7 +192,7 @@ const StudentList: React.FC<StudentListProps> = ({
                     className={`admin-filter-btn ${classFilter === null ? 'active' : ''}`}
                     style={getActiveStyle(classFilter === null)}
                 >
-                    ყველა
+                    ყველა ჯგუფი
                 </button>
                 {grades.map(grade => (
                     <button 
@@ -237,7 +237,7 @@ const StudentList: React.FC<StudentListProps> = ({
                             <th>სახელი</th>
                             <th>გვარი</th>
                             <th>პ/ნ</th>
-                            <th>კლასი</th>
+                            <th>ჯგუფი / ასაკი</th>
                             <th style={{ textAlign: 'center' }}>ქმედება</th>
                         </tr>
                     </thead>
@@ -257,7 +257,7 @@ const StudentList: React.FC<StudentListProps> = ({
                                                 background: `linear-gradient(135deg, ${selectedColor} 0%, #3a8dde 100%)`, 
                                                 boxShadow: `0 4px 12px ${selectedColor}3D`
                                             }} 
-                                            title="მოსწავლის ქარდი"
+                                            title="აღსაზრდელის ქარდი"
                                         >
                                             ქარდი
                                         </button>
@@ -280,7 +280,7 @@ const StudentList: React.FC<StudentListProps> = ({
                         )) : (
                             <tr>
                                 <td colSpan={5} style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-                                    მოსწავლე ვერ მოიძებნა
+                                    აღსაზრდელი ვერ მოიძებნა
                                 </td>
                             </tr>
                         )}

@@ -331,10 +331,10 @@ const EditClassForm: React.FC<EditClassFormProps> = ({ onUpdateClass, onCancel, 
     return (
         <div className="admin-view-container animate-fade-in-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <form onSubmit={handleSubmit} className="admin-form-container animate-zoom-in" style={{ maxWidth: '850px', width: '100%' }}>
-                <h2 className="admin-form-title">კლასის რედაქტირება</h2>
+                <h2 className="admin-form-title">ჯგუფის რედაქტირება</h2>
 
                 <div className="admin-form-group">
-                    <label className="admin-label">აირჩიეთ კლასი</label>
+                    <label className="admin-label">აირჩიეთ ჯგუფი / ასაკი</label>
                     <select className="admin-select" value={selectedClassId} onChange={(e) => handleClassChange(e.target.value)}>
                         {classes.sort((a, b) => {
                             const aName = a?.classname || '';
@@ -356,9 +356,9 @@ const EditClassForm: React.FC<EditClassFormProps> = ({ onUpdateClass, onCancel, 
                 </div>
 
                 <div className="admin-form-group">
-                    <label className="admin-label">დამრიგებელი</label>
+                    <label className="admin-label">ჯგუფის მთავარი აღმზრდელი</label>
                     <select className="admin-select" value={tutorId} onChange={(e) => setTutorId(e.target.value)}>
-                        <option value="">აირჩიეთ დამრიგებელი</option>
+                        <option value="">აირჩიეთ აღმზრდელი</option>
                         {teachers?.map(t => <option key={t._id} value={t._id}>{t.name} {t.surname}</option>)}
                     </select>
                 </div>

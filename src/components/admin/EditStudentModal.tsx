@@ -94,7 +94,7 @@ const EditStudentModal: React.FC<EditStudentModalProps> = ({ isOpen, student, cl
                     <CloseIcon size={24} />
                 </button>
                 
-                <h2 className="admin-form-title">მოსწავლის რედაქტირება</h2>
+                <h2 className="admin-form-title">აღსაზრდელის მონაცემების რედაქტირება</h2>
                 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="admin-form-group">
@@ -110,7 +110,7 @@ const EditStudentModal: React.FC<EditStudentModalProps> = ({ isOpen, student, cl
                         <input className="admin-input" type="text" name="ID" value={formData.ID || formData.user_ID || ''} onChange={handleChange} />
                     </div>
                     <div className="admin-form-group">
-                        <label className="admin-label">კლასი</label>
+                        <label className="admin-label">ასაკობრივი ჯგუფი</label>
                         <select className="admin-select" name="class_id" value={formData.class_id || ''} onChange={handleChange}>
                             {classes.map(c => (
                                 <option key={c._id} value={c._id}>{c.classname}</option>

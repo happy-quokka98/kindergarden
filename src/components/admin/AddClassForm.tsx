@@ -19,16 +19,45 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ onAddClass, onCancel }) => 
     }
   };
 
+  const agePresets = ["1-2 წელი", "2-3 წელი", "3-4 წელი", "4-5 წელი", "5-6 წელი"];
+
   return (
     <div className="admin-view-container animate-fade-in-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <form onSubmit={handleSubmit} className="admin-form-container animate-zoom-in">
-        <h2 className="admin-form-title">კლასის დამატება</h2>
+        <h2 className="admin-form-title">ჯგუფის დამატება</h2>
+        
         <div className="admin-form-group">
-          <label className="admin-label">კლასის სახელი</label>
+          <label className="admin-label" style={{ marginBottom: '8px', display: 'block' }}>სწრაფი არჩევა (ასაკობრივი ჯგუფი):</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+            {agePresets.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setClassName(preset)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  border: className === preset ? `2px solid ${selectedColor}` : '1px solid #ddd',
+                  background: className === preset ? `${selectedColor}15` : '#f8f9fa',
+                  color: className === preset ? selectedColor : '#333',
+                  fontWeight: className === preset ? '600' : '400',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {preset}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-form-group">
+          <label className="admin-label">ჯგუფის / ასაკის დასახელება</label>
           <input
             className="admin-input"
             type="text"
-            placeholder="მაგ: 10-A"
+            placeholder="მაგ: 2-3 წელი (მცირე ჯგუფი)"
             value={className}
             onChange={(e) => setClassName(e.target.value)}
             required
