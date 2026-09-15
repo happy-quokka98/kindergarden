@@ -3,7 +3,8 @@ import { MongoClient, Db } from "mongodb";
 const uri = process.env.MONGODB_URI || "mongodb+srv://kakhiweinrooneykakhidze_db_user:TVuOu5jYYo0gX7vy@cluster0.a1whxsi.mongodb.net/school?retryWrites=true&w=majority";
 
 const options = {
-  maxPoolSize: 100,
+  maxPoolSize: 1000,
+  serverSelectionTimeoutMS: 5000,
 };
 
 let client: MongoClient;
