@@ -8,9 +8,13 @@ export interface Student {
   surname: string;
   role?: string;
   image?: string;
-  password: string;
+  password?: string;
   class_id: ObjectId;
   points?: ObjectId[];
+  payment_due_day?: number;
+  payment_amount?: number;
+  payment_status?: 'paid' | 'unpaid';
+  monthly_payments?: Record<string, 'paid' | 'unpaid'>;
 }
 
 export interface CalendarEntry {
@@ -267,6 +271,7 @@ export interface DailyRoutineLog {
   mood?: 'happy' | 'calm' | 'sleepy' | 'energetic' | 'crying';
   breakfast?: 'all' | 'half' | 'none';
   lunch?: 'all' | 'half' | 'none';
+  dinner?: 'all' | 'half' | 'none';
   snack?: 'all' | 'half' | 'none';
   nap?: 'slept' | 'rested' | 'awake';
   notes?: string;

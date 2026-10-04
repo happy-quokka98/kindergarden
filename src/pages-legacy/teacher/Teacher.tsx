@@ -16,6 +16,9 @@ import { useNavigate, Routes, Route, useParams } from "react-router-dom"; // For
 import InfoModal from "../../components/InfoModal";
 import DetailedGradeHistory from "../../components/admin/DetailedGradeHistory";
 import { clearAuthSession, validateSession } from "@/lib/auth";
+import MessagePopup from "../../components/MessagePopup";
+import GroupScheduleManager from "../../components/teacher/GroupScheduleManager";
+import ActivityPhotoUploader from "../../components/teacher/ActivityPhotoUploader";
 import "../admin/Admin.css";
 
 const FaChalkboardTeacherIcon = FaChalkboardTeacher as React.ComponentType<{
@@ -38,7 +41,8 @@ const TutorClassDetails: React.FC<{
   selectedColor: string;
   onSelectSubject?: (subjectId: string, subjectName: string) => void;
   onViewAllGrades?: () => void;
-}> = ({ allSubjects, allTeachers, tutorClass, selectedColor, onSelectSubject, onViewAllGrades }) => {
+  onManageSchedule?: () => void;
+}> = ({ allSubjects, allTeachers, tutorClass, selectedColor, onSelectSubject, onViewAllGrades, onManageSchedule }) => {
   if (!tutorClass) return null;
   const subjectsList = tutorClass.subjects || [];
   return (
@@ -70,37 +74,53 @@ const TutorClassDetails: React.FC<{
           }}>
             {tutorClass.classname}
           </div>
-          <div>
-            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', fontWeight: 800 }}>
-              სადამრიგებლო ჯგუფი
-            </div>
-            <div style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>
-              {subjectsList.length} საგანი / აქტივობა
-            </div>
-          </div>
+
         </div>
 
-        {onViewAllGrades && (
-          <button
-            onClick={onViewAllGrades}
-            style={{
-              background: '#2563eb',
-              color: '#ffffff',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: '14px',
-              fontWeight: 800,
-              fontSize: '14px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            📊 ჯგუფის სრული ჟურნალი
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {onManageSchedule && (
+            <button
+              onClick={onManageSchedule}
+              style={{
+                background: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '14px',
+                fontWeight: 800,
+                fontSize: '14px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              📅 დღის განრიგის შეტანა
+            </button>
+          )}
+          {onViewAllGrades && (
+            <button
+              onClick={onViewAllGrades}
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                padding: '12px 20px',
+                borderRadius: '14px',
+                fontWeight: 800,
+                fontSize: '14px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              📊 ჯგუფის სრული ჟურნალი
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -169,6 +189,7 @@ const Teacher: React.FC = () => {
   const navigate = useNavigate();
   const [teachesClasses, setTeachesClasses] = useState<any[]>([]);
   const [tutorClasses, setTutorClasses] = useState<any[]>([]);
+  const [allClasses, setAllClasses] = useState<any[]>([]);
   const [selectedTutorClass, setSelectedTutorClass] = useState<any | null>(
     null,
   );
@@ -190,8 +211,15 @@ const Teacher: React.FC = () => {
   const [grades, setGrades] = useState<any[]>([]);
   const [teacherSchedule, setTeacherSchedule] = useState<any[][]>([]);
   const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [selectedGroupScheduleId, setSelectedGroupScheduleId] = useState<string | null>(null);
+  const [popupState, setPopupState] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setPopupState({ message, type });
+  };
+
   const [activeTab, setActiveTab] = useState<
-    "routine" | "calendar" | "homeroom" | "teaching" | "notices" | "messages"
+    "routine" | "activityPhotos" | "groupSchedule" | "calendar" | "homeroom" | "teaching" | "notices" | "messages"
   >("routine");
 
   // Get current logged-in teacher info for chat and notices
@@ -308,6 +336,7 @@ const Teacher: React.FC = () => {
       const res = await fetch("/api/classes");
       if (!res.ok) return;
       const allClasses = await res.json();
+      setAllClasses(allClasses);
       // Fetch all teachers to get _id for this user_ID and for subject display
       const tRes = await fetch("/api/teacher/all");
       if (!tRes.ok) return;
@@ -659,6 +688,13 @@ const Teacher: React.FC = () => {
               </form>
             </div>
           </div>
+        )}
+        {popupState && (
+          <MessagePopup
+            message={popupState.message}
+            type={popupState.type}
+            onClose={() => setPopupState(null)}
+          />
         )}
       </div>
     );
@@ -1830,12 +1866,14 @@ const Teacher: React.FC = () => {
   };
 
   const tabList = [
-    { key: "routine", label: "🧸 დღის რეჟიმი & კვება", badge: false },
+    { key: "routine", label: "დღის რეჟიმი & კვება", badge: false },
+    { key: "activityPhotos", label: "📸 აქტივობის ფოტოები", badge: false },
+    { key: "groupSchedule", label: "ჯგუფის განრიგის შეტანა", badge: false },
+    { key: "homeroom", label: "მობარებული ჯგუფები", badge: false },
     { key: "teaching", label: "ჯგუფების მეცადინეობა", badge: false },
-    { key: "homeroom", label: "სადამრიგებლო ჯგუფი", badge: false },
     { key: "calendar", label: "ჩემი განრიგი", badge: false },
-    { key: "notices", label: "📢 განცხადებები", badge: hasUnreadTeacherNotices },
-    { key: "messages", label: "💬 ჩატი", badge: hasUnreadTeacherMessages },
+    { key: "notices", label: "განცხადებები", badge: hasUnreadTeacherNotices },
+    { key: "messages", label: "ჩატი", badge: hasUnreadTeacherMessages },
   ];
 
   // Main page content
@@ -1874,7 +1912,43 @@ const Teacher: React.FC = () => {
         <div className="admin-view-container" style={{ width: '100%', padding: 0 }}>
           {activeTab === "routine" && (
             <div style={{ width: '100%', marginTop: '20px' }}>
-              <DailyRoutineTracker />
+              <DailyRoutineTracker assignedGroups={tutorClasses.length > 0 ? tutorClasses : teachesClasses} />
+            </div>
+          )}
+          {activeTab === "activityPhotos" && (
+            <div style={{ width: '100%', marginTop: '20px' }}>
+              <ActivityPhotoUploader
+                groups={tutorClasses.length > 0 ? tutorClasses : teachesClasses}
+                initialGroupId={tutorClasses[0]?._id || teachesClasses[0]?._id}
+                currentTeacherId={teacherIdForChat}
+                currentTeacherName={teacherNameForChat}
+                showToast={showToast}
+              />
+            </div>
+          )}
+          {activeTab === "groupSchedule" && (
+            <div style={{ width: '100%', marginTop: '20px' }}>
+              <GroupScheduleManager
+                tutorClasses={tutorClasses}
+                teachesClasses={teachesClasses}
+                allClasses={allClasses}
+                allSubjects={allSubjects}
+                allTeachers={allTeachers}
+                currentTeacherId={teacherIdForChat}
+                initialClassId={selectedGroupScheduleId}
+                onScheduleUpdated={() => {
+                  const user_ID = chatLoginData.user_ID;
+                  if (user_ID) {
+                    fetch("/api/classes")
+                      .then(res => res.json())
+                      .then(data => setAllClasses(data));
+                    fetch(`/api/teacher/schedule?user_ID=${encodeURIComponent(user_ID)}&teacher_id=${encodeURIComponent(teacherIdForChat || "")}`)
+                      .then(res => res.json())
+                      .then(sched => setTeacherSchedule(sched));
+                  }
+                }}
+                showToast={showToast}
+              />
             </div>
           )}
           {activeTab === "calendar" &&
@@ -1883,7 +1957,30 @@ const Teacher: React.FC = () => {
                 <div className="admin-form-title">განრიგი იტვირთება...</div>
               </div>
             ) : (
-              <TeacherCalendarTable schedule={teacherSchedule} />
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                  <button
+                    onClick={() => setActiveTab("groupSchedule")}
+                    style={{
+                      background: '#2563eb',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '12px',
+                      fontWeight: 800,
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
+                    }}
+                  >
+                    ✏️ მობარებული ჯგუფის განრიგის შეტანა / ცვლილება
+                  </button>
+                </div>
+                <TeacherCalendarTable schedule={teacherSchedule} />
+              </div>
             ))}
           {activeTab === "homeroom" && (
             <div className="admin-view-container">
@@ -2031,6 +2128,11 @@ const Teacher: React.FC = () => {
             selectedColor={selectedColor}
             onSelectSubject={(subjectId, subjectName) => setActiveSubject({ id: subjectId, name: subjectName })}
             onViewAllGrades={() => setActiveSubject('all')}
+            onManageSchedule={() => {
+              setSelectedGroupScheduleId(tutorClass._id);
+              setActiveTab("groupSchedule");
+              navigate("/teacher");
+            }}
           />
         </div>
       </TeacherLayout>

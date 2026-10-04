@@ -54,6 +54,21 @@ const AddStudentForm: React.FC<AddStudentFormProps> = ({
                             ))}
                         </select>
                     </div>
+                    <div className="admin-form-group">
+                        <label className="admin-label">გადასახადის გადახდის დღე (რიცხვი 1-31)</label>
+                        <input className="admin-input" id="payment_due_day" name="payment_due_day" type="number" min="1" max="31" defaultValue="10" placeholder="მაგ. 10" required />
+                    </div>
+                    <div className="admin-form-group">
+                        <label className="admin-label">გადასახდელი თანხა (₾)</label>
+                        <input className="admin-input" id="payment_amount" name="payment_amount" type="number" min="0" step="any" defaultValue="150" placeholder="150" required />
+                    </div>
+                    <div className="admin-form-group">
+                        <label className="admin-label">გადახდის სტატუსი</label>
+                        <select className="admin-select" id="payment_status" name="payment_status" defaultValue="unpaid">
+                            <option value="unpaid">🔴 გადაუხდელია</option>
+                            <option value="paid">🟢 გადახდილია</option>
+                        </select>
+                    </div>
                     <button className="admin-submit-btn" type="submit" style={{ background: selectedColor }}>
                         აღსაზრდელის დამატება
                     </button>

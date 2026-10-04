@@ -5,16 +5,17 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const classId = searchParams.get("class_id");
-    const date = searchParams.get("date") || new Date().toISOString().slice(0, 10);
+    const date = searchParams.get("date");
     const studentId = searchParams.get("student_id");
 
     const db = await getDb();
-    const query: Record<string, any> = { date };
+    const query: Record<string, any> = {};
 
     if (classId) query.class_id = classId;
     if (studentId) query.student_id = studentId;
+    if (date && date !== "all") query.date = date;
 
-    const logs = await db.collection("daily_routine_logs").find(query).toArray();
+    const logs = await db.collection("daily_routine_logs").find(query).sort({ date: -1 }).toArray();
     return NextResponse.json(logs);
   } catch (err: any) {
     return NextResponse.json({ message: "შეცდომა რეჟიმის მონაცემების მიღებისას", error: err.message }, { status: 500 });
@@ -46,6 +47,7 @@ export async function POST(req: NextRequest) {
             mood: log.mood,
             breakfast: log.breakfast,
             lunch: log.lunch,
+            dinner: log.dinner,
             snack: log.snack,
             nap: log.nap,
             notes: log.notes,

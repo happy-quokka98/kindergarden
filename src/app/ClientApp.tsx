@@ -32,7 +32,7 @@ export default function ClientApp() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
+                color: 'black',
                 fontSize: '18px',
                 fontWeight: 600,
                 fontFamily: 'inherit'

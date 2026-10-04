@@ -22,6 +22,7 @@ interface RoutineLog {
   mood: 'happy' | 'calm' | 'sleepy' | 'energetic' | 'crying';
   breakfast: 'all' | 'half' | 'none';
   lunch: 'all' | 'half' | 'none';
+  dinner?: 'all' | 'half' | 'none';
   snack: 'all' | 'half' | 'none';
   nap: 'slept' | 'rested' | 'awake';
   notes: string;
@@ -30,9 +31,10 @@ interface RoutineLog {
 
 interface DailyRoutineTrackerProps {
   groupId?: string;
+  assignedGroups?: Group[];
 }
 
-export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProps) {
+export default function DailyRoutineTracker({ groupId, assignedGroups }: DailyRoutineTrackerProps) {
   const { selectedColor } = useColor();
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<string>(groupId || "");
@@ -44,8 +46,15 @@ export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProp
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
-    fetchGroups();
-  }, []);
+    if (assignedGroups !== undefined) {
+      setGroups(assignedGroups);
+      if (assignedGroups.length > 0 && !selectedGroup) {
+        setSelectedGroup(assignedGroups[0]._id);
+      }
+    } else {
+      fetchGroups();
+    }
+  }, [assignedGroups]);
 
   useEffect(() => {
     if (selectedGroup) {
@@ -95,6 +104,7 @@ export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProp
               mood: item.mood || "happy",
               breakfast: item.breakfast || "all",
               lunch: item.lunch || "all",
+              dinner: item.dinner || "all",
               snack: item.snack || "all",
               nap: item.nap || "slept",
               notes: item.notes || "",
@@ -114,6 +124,7 @@ export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProp
             mood: "happy",
             breakfast: "all",
             lunch: "all",
+            dinner: "all",
             snack: "all",
             nap: "slept",
             notes: "",
@@ -357,12 +368,12 @@ export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProp
                     <td style={{ padding: "12px" }}>
                       <div style={{ display: "flex", gap: "6px", flexDirection: "column" }}>
                         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                          <span style={{ width: "60px", fontSize: "12px", color: "#cbd5e1" }}>საუზმე:</span>
+                          <span style={{ width: "65px", fontSize: "12px", color: "#cbd5e1", fontWeight: "700" }}>საუზმე:</span>
                           <select
                             value={log.breakfast}
                             disabled={!log.present}
                             onChange={(e) => handleLogChange(student._id, "breakfast", e.target.value)}
-                            style={{ padding: "4px 8px", borderRadius: "4px", backgroundColor: "#0f172a", color: "white", border: "none", fontSize: "12px" }}
+                            style={{ padding: "4px 8px", borderRadius: "6px", backgroundColor: "#0f172a", color: "white", border: "1px solid rgba(255,255,255,0.15)", fontSize: "12px" }}
                           >
                             <option value="all">🥣 სრულად</option>
                             <option value="half">🥛 ნახევარი</option>
@@ -370,12 +381,25 @@ export default function DailyRoutineTracker({ groupId }: DailyRoutineTrackerProp
                           </select>
                         </div>
                         <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                          <span style={{ width: "60px", fontSize: "12px", color: "#cbd5e1" }}>სადილი:</span>
+                          <span style={{ width: "65px", fontSize: "12px", color: "#cbd5e1", fontWeight: "700" }}>სადილი:</span>
                           <select
                             value={log.lunch}
                             disabled={!log.present}
                             onChange={(e) => handleLogChange(student._id, "lunch", e.target.value)}
-                            style={{ padding: "4px 8px", borderRadius: "4px", backgroundColor: "#0f172a", color: "white", border: "none", fontSize: "12px" }}
+                            style={{ padding: "4px 8px", borderRadius: "6px", backgroundColor: "#0f172a", color: "white", border: "1px solid rgba(255,255,255,0.15)", fontSize: "12px" }}
+                          >
+                            <option value="all">🍲 სრულად</option>
+                            <option value="half">🥗 ნახევარი</option>
+                            <option value="none">❌ არ შეჭამა</option>
+                          </select>
+                        </div>
+                        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                          <span style={{ width: "65px", fontSize: "12px", color: "#cbd5e1", fontWeight: "700" }}>ვახშამი:</span>
+                          <select
+                            value={log.dinner || "all"}
+                            disabled={!log.present}
+                            onChange={(e) => handleLogChange(student._id, "dinner", e.target.value)}
+                            style={{ padding: "4px 8px", borderRadius: "4px", backgroundColor: "#0f172a", color: "white", border: "1px solid rgba(255,255,255,0.15)", fontSize: "12px" }}
                           >
                             <option value="all">🍲 სრულად</option>
                             <option value="half">🥗 ნახევარი</option>

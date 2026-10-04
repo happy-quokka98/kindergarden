@@ -26,43 +26,60 @@ const AddClassForm: React.FC<AddClassFormProps> = ({ onAddClass, onCancel }) => 
       <form onSubmit={handleSubmit} className="admin-form-container animate-zoom-in">
         <h2 className="admin-form-title">ჯგუფის დამატება</h2>
         
-        <div className="admin-form-group">
-          <label className="admin-label" style={{ marginBottom: '8px', display: 'block' }}>სწრაფი არჩევა (ასაკობრივი ჯგუფი):</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-            {agePresets.map((preset) => (
-              <button
-                key={preset}
-                type="button"
-                onClick={() => setClassName(preset)}
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '20px',
-                  border: className === preset ? `2px solid ${selectedColor}` : '1px solid #ddd',
-                  background: className === preset ? `${selectedColor}15` : '#f8f9fa',
-                  color: className === preset ? selectedColor : '#333',
-                  fontWeight: className === preset ? '600' : '400',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                {preset}
-              </button>
-            ))}
-          </div>
-        </div>
 
         <div className="admin-form-group">
-          <label className="admin-label">ჯგუფის / ასაკის დასახელება</label>
+          <label className="admin-label">ჯგუფის დასახელება / სახელი</label>
           <input
             className="admin-input"
             type="text"
-            placeholder="მაგ: 2-3 წელი (მცირე ჯგუფი)"
+            placeholder="მაგ: ვარსკვლავები, ფუტკრები, ციცინათელები, 3-4 წელი..."
             value={className}
             onChange={(e) => setClassName(e.target.value)}
             required
           />
         </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 600, display: 'block', marginBottom: '8px' }}>
+            💡 პოპულარული სახელების შაბლონები (დააჭირეთ ასარჩევად):
+          </label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {[
+              "⭐ ვარსკვლავები",
+              "🐝 ფუტკრები",
+              "💡 ციცინათელები",
+              "☀️ მზის სხივები",
+              "🧠 პატარა გენიოსები",
+              "🧸 2-3 წელი (მცირე ჯგუფი)",
+              "🎨 3-4 წელი (საშუალო ჯგუფი)",
+              "🚀 4-5 წელი (უფროსი ჯგუფი)",
+              "🎓 5-6 წელი (სასკოლო მზაობა)"
+            ].map(preset => {
+              const cleanName = preset.split(' ').slice(1).join(' ');
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setClassName(cleanName)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    border: className === cleanName ? `2px solid ${selectedColor}` : '1px solid rgba(255,255,255,0.15)',
+                    background: className === cleanName ? `${selectedColor}33` : 'rgba(255,255,255,0.05)',
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {preset}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
           <button type="button" onClick={onCancel} className="admin-cancel-btn" style={{ flex: 1 }}>
             გაუქმება

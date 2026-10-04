@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const body = await req.json();
-  const { name, surname, user_ID, ID, image, role } = body;
+  const { name, surname, user_ID, ID, image, role, payment_due_day, payment_amount, payment_status } = body;
   const studentId = ID || user_ID;
 
   let classID = body.class_id;
@@ -33,6 +33,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     class_id: classObjID,
   };
   if (image !== undefined) updateFields.image = image;
+  if (payment_due_day !== undefined) updateFields.payment_due_day = parseInt(String(payment_due_day), 10);
+  if (payment_amount !== undefined) updateFields.payment_amount = parseFloat(String(payment_amount));
+  if (payment_status !== undefined) updateFields.payment_status = payment_status;
   const update = { $set: updateFields };
 
   if (ObjectId.isValid(id)) {

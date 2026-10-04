@@ -8,7 +8,8 @@ import ChatModule from './../../components/ChatModule';
 import DailyTimeline from './../../components/DailyTimeline';
 import HomeworkModule from './../../components/HomeworkModule';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import MonthlyPaymentButtons from '@/components/MonthlyPaymentButtons';
 import { 
   FaSignOutAlt, 
   FaGraduationCap, 
@@ -16,8 +17,10 @@ import {
   FaComments,
   FaCalendarAlt,
   FaTasks,
-  FaUserGraduate
+  FaUserGraduate,
+  FaCreditCard
 } from 'react-icons/fa';
+import { getPaymentStatus } from '@/lib/payment';
 import { clearAuthSession, validateSession } from '@/lib/auth';
 import '../admin/Admin.css';
 
@@ -53,9 +56,10 @@ function readStudentSession(): { studentId: string; classId: string } {
 
 const Student: React.FC = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { selectedColor } = useColor();
     const [{ studentId, classId }] = useState(readStudentSession);
-    const [activeTab, setActiveTab] = useState<'grades' | 'timeline' | 'homework' | 'notices' | 'messages'>('grades');
+    const [activeTab, setActiveTab] = useState<'grades' | 'timeline' | 'homework' | 'notices' | 'messages' | 'payments'>('grades');
 
     // Fetch student info
     const { data: studentInfo } = useQuery({
@@ -68,6 +72,47 @@ const Student: React.FC = () => {
         enabled: !!studentId,
         staleTime: 60000
     });
+
+    const handleConfirmPaymentForMonth = async () => {
+        if (!studentId || !studentInfo) return;
+        const isPaid = studentInfo.payment_status === 'paid';
+        const nextStatus = isPaid ? 'unpaid' : 'paid';
+
+        const monthsGeorgian = [
+            'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+            'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+        ];
+        const currentMonthName = monthsGeorgian[new Date().getMonth()];
+
+        try {
+            await Promise.all([
+                fetch(`/api/student/update/${studentInfo._id || studentId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        _id: studentInfo._id || studentId,
+                        name: studentInfo.name,
+                        surname: studentInfo.surname,
+                        user_ID: studentId,
+                        class_id: classId,
+                        payment_status: nextStatus
+                    })
+                }),
+                fetch('/api/student/pay-month', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        month: currentMonthName,
+                        status: nextStatus
+                    })
+                })
+            ]);
+            queryClient.invalidateQueries({ queryKey: ['student-info', studentId] });
+        } catch (err) {
+            console.error('Error confirming payment:', err);
+        }
+    };
 
     // Fetch all messages for unread badge evaluation
     const { data: allMessages } = useQuery({
@@ -158,6 +203,16 @@ const Student: React.FC = () => {
                 return <NoticeBoard currentUser={{ id: studentId, name: studentFullName, role: 'student', classId: classId }} />;
             case 'messages':
                 return <ChatModule currentUser={{ id: studentId, name: studentFullName, role: 'student' }} />;
+            case 'payments':
+                return (
+                    <MonthlyPaymentButtons
+                        studentId={studentId}
+                        monthlyPayments={studentInfo?.monthly_payments}
+                        selectedColor={selectedColor}
+                        isReadOnly={true}
+                        onPaymentUpdated={() => queryClient.invalidateQueries({ queryKey: ['student-info', studentId] })}
+                    />
+                );
         }
     };
 
@@ -243,6 +298,49 @@ const Student: React.FC = () => {
                                 ჯგუფი: {studentInfo.classInfo.classname}
                             </div>
                         )}
+
+                        {(() => {
+                            const pStatus = getPaymentStatus(studentInfo?.payment_due_day, studentInfo?.payment_amount, studentInfo?.payment_status);
+                            const isPaid = studentInfo?.payment_status === 'paid';
+                            return (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    <div style={{
+                                        padding: '8px 16px',
+                                        borderRadius: '12px',
+                                        background: `${pStatus.badgeColor}18`,
+                                        border: `1px solid ${pStatus.badgeColor}55`,
+                                        color: 'white',
+                                        fontWeight: 700,
+                                        fontSize: '14px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: `0 4px 12px ${pStatus.badgeColor}20`
+                                    }}>
+                                        <FaCreditCard size={14} color={pStatus.badgeColor} />
+                                        <span>გადასახადი: <strong>{pStatus.amount} ₾</strong></span>
+                                        <span style={{ color: pStatus.badgeColor, marginLeft: '4px' }}>| {pStatus.badgeText}</span>
+                                    </div>
+
+                                    <div
+                                        style={{
+                                            padding: '8px 16px',
+                                            borderRadius: '12px',
+                                            background: isPaid ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                            border: isPaid ? '1px solid #10b981' : '1px solid #ef4444',
+                                            color: isPaid ? '#10b981' : '#fca5a5',
+                                            fontWeight: 800,
+                                            fontSize: '13px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px'
+                                        }}
+                                    >
+                                        {isPaid ? '🟢 გადახდილია' : '🔴 გადაუხდელია'}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
 
@@ -286,22 +384,15 @@ const Student: React.FC = () => {
                                 }} />
                             )}
                         </button>
+
                         <button
-                            onClick={() => setActiveTab('messages')}
-                            className={`admin-tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
-                            style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' }}
+                            onClick={() => setActiveTab('payments')}
+                            className={`admin-tab-btn ${activeTab === 'payments' ? 'active' : ''}`}
+                            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                         >
-                            <FaComments size={16} /> 💬 ჩატი
-                            {hasUnreadMessages && (
-                                <span style={{
-                                    width: '8px',
-                                    height: '8px',
-                                    borderRadius: '50%',
-                                    backgroundColor: '#ef4444',
-                                    boxShadow: '0 0 6px #ef4444'
-                                }} />
-                            )}
+                            <FaCreditCard size={16} /> 💳 თვიური გადასახადები
                         </button>
+                        
                     </div>
                 </div>
 

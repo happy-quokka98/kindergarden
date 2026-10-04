@@ -364,28 +364,6 @@ const EditClassForm: React.FC<EditClassFormProps> = ({ onUpdateClass, onCancel, 
                 </div>
 
                 <div className="admin-form-group">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px', marginBottom: '20px' }}>
-                        <h3 className="admin-label" style={{ fontSize: '18px', margin: 0 }}>საგნები</h3>
-                        <button
-                            type="button"
-                            onClick={handleApplyEsgHours}
-                            style={{
-                                fontSize: '12px',
-                                color: '#ffffff',
-                                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                                border: '1px solid rgba(147, 197, 253, 0.4)',
-                                padding: '6px 14px',
-                                borderRadius: '8px',
-                                fontWeight: 700,
-                                cursor: 'pointer',
-                                boxShadow: '0 2px 10px rgba(37, 99, 235, 0.3)',
-                                transition: 'all 0.2s ease'
-                            }}
-                            title="კლასის საგნების საათების ავტომატურად განახლება ესგ ბადის მიხედვით"
-                        >
-                            ⚡ ესგ ბადით საათების ავტომატური განახლება
-                        </button>
-                    </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         {classSubjects.map((cs, index) => {
                             const currentSubj = subjectsList.find(s => s._id === cs.subject_id);

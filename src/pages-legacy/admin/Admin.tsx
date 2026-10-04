@@ -60,6 +60,9 @@ interface Student {
         ID?: string;
         classname: string;
     };
+    payment_due_day?: number;
+    payment_amount?: number;
+    payment_status?: 'paid' | 'unpaid';
 }
 
 interface Teacher {
@@ -98,7 +101,7 @@ const Admin: React.FC = () => {
 
     const [classes, setClasses] = useState<Class[]>([]);
     const [subjects, setSubjects] = useState<Subject[]>([]);
-    const [classFilter, setClassFilter] = useState<number | null>(null);
+    const [classFilter, setClassFilter] = useState<number | string | null>(null);
     const [parallelFilter, setParallelFilter] = useState<string | null>(null);
     const [popup, setPopup] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
     const [confirmation, setConfirmation] = useState<{ message: string; onConfirm: () => void; } | null>(null);
@@ -513,7 +516,6 @@ const Admin: React.FC = () => {
             { icon: FaHistory, label: 'ისტორია' },
             { icon: FaCalendarAlt, label: 'დღის რეჟიმის კალენდარი' },
             { icon: FaBullhorn, label: 'განცხადებები' },
-            { icon: FaComments, label: 'ჩატი' },
         ];
 
     const adminItems: { icon: IconType; label: string }[] = [
@@ -660,6 +662,9 @@ const Admin: React.FC = () => {
                 surname: updatedStudent.surname,
                 user_ID: updatedStudent.user_ID,
                 class_id: updatedStudent.classInfo?._id || "",
+                payment_due_day: updatedStudent.payment_due_day,
+                payment_amount: updatedStudent.payment_amount,
+                payment_status: updatedStudent.payment_status,
             };
 
             const res = await fetch(`/api/student/update/${updatedStudent._id}`, {
@@ -787,10 +792,15 @@ const Admin: React.FC = () => {
 
             case 'კლასი':
             case 'ჯგუფი':
+            case 'კლასები':
+            case 'ჯგუფები':
+            case 'ასაკობრივი ჯგუფები':
+                fetchAllClasses();
                 setView('classOptions');
                 break;
             case 'კლასის დამატება':
             case 'ჯგუფის დამატება':
+            case 'ჯგუფის დამატება (ასაკი)':
                 setView('addClassForm');
                 break;
             case 'საგნის დამატება':
@@ -852,6 +862,11 @@ const Admin: React.FC = () => {
                 setView('journalOpen');
                 break;
             case 'გაკვეთილების კალენდარი':
+            case 'დღის რეჟიმის კალენდარი':
+            case 'კალენდარი':
+                fetchAllClasses();
+                fetchAllSubjects();
+                fetchTeachers();
                 setView('manageCalendars');
                 break;
             case 'დღის სკანირება':
@@ -891,9 +906,6 @@ const Admin: React.FC = () => {
                 break;
             case 'განცხადებები':
                 setView('noticeBoard');
-                break;
-            case 'ჩატი':
-                setView('chat');
                 break;
             default:
                 break;
@@ -981,10 +993,10 @@ const Admin: React.FC = () => {
         }
     };
 
-    const fetchStudents = async (grade?: number | null, parallel?: string | null) => {
+    const fetchStudents = async (grade?: number | string | null, parallel?: string | null) => {
         try {
             const url = grade
-                ? `/api/student/grade/${grade}${parallel ? `?parallel=${encodeURIComponent(parallel)}` : ''}`
+                ? `/api/student/grade/${encodeURIComponent(String(grade))}${parallel ? `?parallel=${encodeURIComponent(parallel)}` : ''}`
                 : '/api/student/all';
             const res = await fetch(url);
             if (res.ok) {
@@ -1189,7 +1201,7 @@ const Admin: React.FC = () => {
         }
     };
 
-    const handleGradeClick = (grade: number | null) => {
+    const handleGradeClick = (grade: number | string | null) => {
         setClassFilter(grade);
         setParallelFilter(null);
         fetchStudents(grade, null);
@@ -1202,13 +1214,42 @@ const Admin: React.FC = () => {
 
     const filteredStudents = students.filter(student => {
         if (!classFilter && !parallelFilter) return true;
-        if (!student.classInfo?.classname) return false;
-        const gradeMatch = student.classInfo.classname.match(/(\d+)/);
-        const grade = gradeMatch ? parseInt(gradeMatch[1], 10) : 0;
-        const parallelMatch = student.classInfo.classname.match(/[ა-ჰa-zA-Z]/);
-        const parallel = parallelMatch ? parallelMatch[0] : '';
-        if (classFilter && grade !== classFilter) return false;
-        if (parallelFilter && parallel !== parallelFilter) return false;
+        const sClassName = (student.classInfo?.classname || (student as any).classname || '').trim();
+        const sClassId = ((student as any).class_id || student.classInfo?._id || '').toString().trim();
+        const filterStr = String(classFilter || '').trim();
+
+        if (classFilter) {
+            const isNameMatch = sClassName.toLowerCase() === filterStr.toLowerCase();
+            const isIdMatch = sClassId.toLowerCase() === filterStr.toLowerCase();
+
+            if (isNameMatch || isIdMatch) {
+                // Match
+            } else {
+                const matchedClass = classes.find(c => 
+                    String(c._id).toLowerCase() === filterStr.toLowerCase() ||
+                    (c.classname && c.classname.toLowerCase() === filterStr.toLowerCase())
+                );
+                if (matchedClass && (sClassId.toLowerCase() === String(matchedClass._id).toLowerCase() || sClassName.toLowerCase() === matchedClass.classname?.toLowerCase())) {
+                    // Match via class object
+                } else {
+                    const gradeMatch = sClassName.match(/(\d+)/);
+                    const grade = gradeMatch ? parseInt(gradeMatch[1], 10) : null;
+                    const numFilter = parseInt(filterStr, 10);
+                    if (!Number.isNaN(numFilter) && grade === numFilter) {
+                        // Numeric grade match
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if (parallelFilter) {
+            const parallelMatch = sClassName.match(/[ა-ჰa-zA-Z]/);
+            const parallel = parallelMatch ? parallelMatch[0] : '';
+            if (parallel !== parallelFilter) return false;
+        }
+
         return true;
     });
 
@@ -1669,38 +1710,6 @@ const Admin: React.FC = () => {
                                                                                                     🚨 გაცდენილი მოსწავლეები ({ev.absentCount}): {ev.absentStudentNames.join(', ')}
                                                                                                 </div>
                                                                                             )}
-                                                                                            <div className="admin-table-wrapper" style={{ maxHeight: '250px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px' }}>
-                                                                                                <table className="admin-table" style={{ margin: 0, fontSize: '12px' }}>
-                                                                                                    <thead>
-                                                                                                        <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                                                                                                            <th>მოსწავლე</th>
-                                                                                                            <th style={{ textAlign: 'center' }}>სწრებადობა</th>
-                                                                                                            <th style={{ textAlign: 'center' }}>ნიშანი</th>
-                                                                                                            <th style={{ textAlign: 'center' }}>დრო</th>
-                                                                                                        </tr>
-                                                                                                    </thead>
-                                                                                                    <tbody>
-                                                                                                        {ev.gradesList.map((g: any, gIdx: number) => (
-                                                                                                            <tr key={gIdx}>
-                                                                                                                <td style={{ fontWeight: 600 }}>{g.studentName}</td>
-                                                                                                                <td style={{ textAlign: 'center' }}>
-                                                                                                                    {g.checked ? (
-                                                                                                                        <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓ ესწრებოდა</span>
-                                                                                                                    ) : (
-                                                                                                                        <span style={{ color: '#f44336', fontWeight: 'bold' }}>✗ არ ესწრებოდა</span>
-                                                                                                                    )}
-                                                                                                                </td>
-                                                                                                                <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                                                                                                                    {g.point !== undefined && g.point !== null ? g.point : '-'}
-                                                                                                                </td>
-                                                                                                                <td style={{ textAlign: 'center', opacity: 0.7 }}>
-                                                                                                                    {g.time || '-'}
-                                                                                                                </td>
-                                                                                                            </tr>
-                                                                                                        ))}
-                                                                                                    </tbody>
-                                                                                                </table>
-                                                                                            </div>
                                                                                         </div>
                                                                                     </td>
                                                                                 </tr>
@@ -1713,25 +1722,23 @@ const Admin: React.FC = () => {
                                                     </div>
                                                 </div>
                                             )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        );
-    };
+                                         </div>
+                                     );
+                                 })}
+                             </div>
+                         )}
+                     </div>
+                 )}
+             </div>
+         );
+     };
 
     const renderContent = () => {
         switch (view) {
             case 'main':
-                return <AdminDashboard items={dashboardItems} onCardClick={handleCardClick} boxWidth={boxWidth} selectedColor={selectedColor} BoxTitle={BoxTitle} />;
-            case 'adminOptions':
-                return <AdminDashboard items={adminItems} onCardClick={handleCardClick} boxWidth={boxWidth} selectedColor={selectedColor} BoxTitle={BoxTitle} onBackClick={handleBackClick} />;
-            case 'adminList':
-                return <AdminList admins={adminsList} selectedColor={selectedColor} onBackClick={() => setView('adminOptions')} />;
+                return <AdminDashboard items={dashboardItems} onCardClick={handleCardClick} boxWidth={boxWidth} selectedColor={selectedColor} BoxTitle={BoxTitle} onBackClick={handleBackClick} />;
+            case 'attendanceReport':
+                return <DayScanPage />;
             case 'addAdminForm':
                 return <AddAdminForm onAddAdmin={handleAddAdmin} onCancel={() => setView('adminOptions')} />;
             case 'studentOptions':
@@ -1756,11 +1763,13 @@ const Admin: React.FC = () => {
                 return <EditClassForm onUpdateClass={handleUpdateClass} onCancel={() => setView('classOptions')} classes={classes} teachers={teachers} subjects={subjects} onSubjectUpdated={fetchAllSubjects} />;
             case 'classHistoryGrades':
                 return (
-                    <div style={{ width: '100%', maxWidth: '900px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', alignItems: 'center' }}>
-                        <button className="admin-back-btn" onClick={handleHistoryBack} style={{ marginBottom: '20px' }}>
+                    <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center', alignItems: 'center' }}>
+                        <button className="admin-back-btn" onClick={() => setView('main')} style={{ marginBottom: '20px' }}>
                             <ArrowLeftIcon size={20} /> უკან
                         </button>
-                        <h2 style={{ color: '#0f172a', width: '100%', textAlign: 'center', marginBottom: '24px', fontSize: '28px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>აირჩიეთ კლასი</h2>
+                        <h2 style={{ color: '#0f172a', width: '100%', textAlign: 'center', marginBottom: '8px', fontSize: '28px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            აირჩიეთ ჯგუფი
+                        </h2>
                         
                         {/* Year Selector */}
                         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '28px', alignItems: 'center', gap: '12px' }}>
@@ -1791,56 +1800,76 @@ const Admin: React.FC = () => {
                             </select>
                         </div>
 
-                        {Array.from(new Set(
-                            classes
-                                .map(c => {
-                                    let name = c.classname;
+                        {classes.length > 0 ? (
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                gap: '20px',
+                                width: '100%',
+                                maxWidth: '1100px',
+                                justifyContent: 'center'
+                            }}>
+                                {classes.map(cls => {
+                                    let name = cls.classname;
                                     if (selectedHistoryYear) {
-                                        const h = (c as any).history?.find((x: any) => x.year === selectedHistoryYear);
-                                        if (!h) return null;
-                                        name = h.classname;
+                                        const h = (cls as any).history?.find((x: any) => x.year === selectedHistoryYear);
+                                        if (h) name = h.classname;
                                     }
-                                    const match = name.match(/^([0-9]+)([ა-ჰ])$/);
-                                    return match ? parseInt(match[1], 10) : null;
-                                })
-                                .filter((g): g is number => g !== null)
-                        )).sort((a, b) => a - b).map(grade => (
-                            <div 
-                                key={grade} 
-                                className="admin-card animate-zoom-in"
-                                style={{ 
-                                    width: '120px', 
-                                    height: '120px', 
-                                    fontSize: '32px', 
-                                    fontWeight: 900, 
-                                    color: '#0f172a',
-                                    background: '#ffffff',
-                                    border: '1px solid #e2e8f0',
-                                    borderRadius: '20px',
-                                    justifyContent: 'center',
-                                    padding: 0,
-                                    minHeight: 'auto',
-                                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.04)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                                }} 
-                                onClick={() => handleHistoryGradeClick(grade)}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = '#ffffff';
-                                    e.currentTarget.style.borderColor = '#2563eb';
-                                    e.currentTarget.style.transform = 'translateY(-6px)';
-                                    e.currentTarget.style.boxShadow = '0 16px 35px rgba(37, 99, 235, 0.18)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = '#ffffff';
-                                    e.currentTarget.style.borderColor = '#e2e8f0';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.04)';
-                                }}
-                            >
-                                {grade}
+                                    const tutorObj = teachers.find((t: any) => t._id === cls.damrigebeli);
+                                    const tutorName = tutorObj ? `${tutorObj.name} ${tutorObj.surname}` : 'აღმზრდელი არ არის';
+
+                                    return (
+                                        <div 
+                                            key={cls._id} 
+                                            className="admin-card animate-zoom-in"
+                                            style={{ 
+                                                minHeight: '130px',
+                                                width: '240px',
+                                                padding: '20px',
+                                                justifyContent: 'center',
+                                                background: '#ffffff',
+                                                border: '1px solid #e2e8f0',
+                                                borderRadius: '20px',
+                                                textAlign: 'center',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '8px',
+                                                boxShadow: '0 8px 20px rgba(0, 0, 0, 0.04)',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                                            }} 
+                                            onClick={() => {
+                                                setSelectedClassForHistory({ id: cls._id, name: name });
+                                                setView('detailedGradeHistory');
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = '#ffffff';
+                                                e.currentTarget.style.borderColor = '#2563eb';
+                                                e.currentTarget.style.transform = 'translateY(-6px)';
+                                                e.currentTarget.style.boxShadow = '0 16px 35px rgba(37, 99, 235, 0.18)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = '#ffffff';
+                                                e.currentTarget.style.borderColor = '#e2e8f0';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.04)';
+                                            }}
+                                        >
+                                            <div style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a' }}>
+                                                {name}
+                                            </div>
+                                            <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b' }}>
+                                                👤 {tutorName}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                        ))}
+                        ) : (
+                            <div style={{ color: '#0f172a', fontSize: '18px', fontWeight: 700 }}>
+                                ჯგუფები არ არის დამატებული
+                            </div>
+                        )}
                     </div>
                 );
             case 'classHistoryParallels':
@@ -1931,7 +1960,7 @@ const Admin: React.FC = () => {
                             <ArrowLeftIcon size={20} /> უკან
                         </button>
                         <h2 className="admin-view-title" style={{ marginBottom: '24px', textAlign: 'center' }}>ჟურნალის გახსნა</h2>
-                        {loadingJournal ? <div style={{ color: 'white', textAlign: 'center', marginTop: '20px' }}>იტვირთება...</div> : (
+                        {loadingJournal ? <div style={{ color: 'black', textAlign: 'center', marginTop: '20px' }}>იტვირთება...</div> : (
                             <table className="admin-table">
                                 <thead>
                                     <tr>

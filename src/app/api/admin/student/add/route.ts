@@ -4,7 +4,7 @@ import { ObjectId } from "mongodb";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
-  const { name, surname, user_ID, ID, password, class_id, image } = await req.json();
+  const { name, surname, user_ID, ID, password, class_id, image, payment_due_day, payment_amount, payment_status } = await req.json();
 
   if (!ObjectId.isValid(class_id)) {
     return NextResponse.json({ message: "კლასის ID-ის ფორმატი არასწორია" }, { status: 400 });
@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
     password: hashedPassword,
     class_id: new ObjectId(class_id),
     points: [],
+    payment_due_day: payment_due_day ? parseInt(String(payment_due_day), 10) : 10,
+    payment_amount: payment_amount ? parseFloat(String(payment_amount)) : 150,
+    payment_status: payment_status || 'unpaid',
   };
 
   const db = await getDb();

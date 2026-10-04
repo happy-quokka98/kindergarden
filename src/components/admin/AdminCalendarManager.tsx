@@ -515,29 +515,6 @@ const AdminCalendarManager: React.FC<AdminCalendarManagerProps> = ({ teachers, c
                   ))}
                 </select>
               </div>
-
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowAvailabilityModal(true)}
-                  style={{
-                    padding: '10px 16px',
-                    borderRadius: '12px',
-                    border: '1px solid #cbd5e1',
-                    background: '#f8fafc',
-                    color: '#334155',
-                    fontWeight: 700,
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                  title="მასწავლებლების თავისუფალი/დაკავებული დღეების და საათების მართვა"
-                >
-                  ⚙️ მასწავლებლის საათები/დღეები
-                </button>
-              </div>
             </div>
           </div>
 

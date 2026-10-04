@@ -128,6 +128,30 @@ const DailyTimeline: React.FC<DailyTimelineProps> = ({ classId }) => {
     refetchInterval: 10000
   });
 
+  const { data: activityPhotos } = useQuery<any[]>({
+    queryKey: ['activity-photos-timeline', classId],
+    queryFn: async () => {
+      if (!classId) return [];
+      const res = await fetch(`/api/activity-photos?class_id=${classId}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!classId,
+    refetchInterval: 10000
+  });
+
+  const { data: groupRoutineItems } = useQuery<any[]>({
+    queryKey: ['group-routine-items-timeline', classId],
+    queryFn: async () => {
+      if (!classId) return [];
+      const res = await fetch(`/api/class/group-routine?class_id=${classId}`);
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!classId,
+    refetchInterval: 10000
+  });
+
   const classData = classesList?.find(c => c._id === classId);
   const isLoading = loadingClasses || loadingSubjects || loadingTeachers || loadingEvents;
 
@@ -296,6 +320,82 @@ const DailyTimeline: React.FC<DailyTimelineProps> = ({ classId }) => {
         </div>
       )}
 
+      {/* Custom Group Daily Routine Activities */}
+      {!isHolidayDay && groupRoutineItems && groupRoutineItems.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          borderRadius: '20px',
+          padding: '24px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+          border: '1.5px solid #e2e8f0',
+          marginBottom: '24px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+            <h2 style={{ margin: 0, fontSize: '18px', color: '#0f172a', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              🧸 დღის რეჟიმი & აქტივობები ({daysGeorgian[selectedDayIdx]})
+            </h2>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '4px 10px', borderRadius: '8px' }}>
+              საათების მიხედვით
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+            {groupRoutineItems
+              .filter((item: any) => {
+                const targetDay = selectedDayIdx + 1;
+                return item.day_of_week === targetDay || item.day_of_week === 0 || !item.day_of_week;
+              })
+              .map((item: any) => (
+                <div
+                  key={item._id}
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: '14px',
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                    display: 'flex',
+                    gap: '12px',
+                    alignItems: 'flex-start'
+                  }}
+                >
+                  <div style={{
+                    fontSize: '22px',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    background: '#eff6ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    {item.icon || '📅'}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: 800, color: '#2563eb', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span>⏰ {item.time_start} - {item.time_end}</span>
+                      {item.day_of_week > 0 && (
+                        <span style={{ fontSize: '10px', background: '#e0f2fe', color: '#0369a1', padding: '1px 5px', borderRadius: '4px' }}>
+                          {daysGeorgian[item.day_of_week - 1]}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
+                      {item.title}
+                    </div>
+                    {item.description && (
+                      <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Timeline Section */}
       {!isHolidayDay && (
         <div style={{
@@ -426,6 +526,48 @@ const DailyTimeline: React.FC<DailyTimelineProps> = ({ classId }) => {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Completed Activity Photos Section */}
+      {activityPhotos && activityPhotos.length > 0 && (
+        <div style={{ marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            📸 დღის შესრულებული აქტივობების ფოტოები
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+            {activityPhotos.map((item) => (
+              <div
+                key={item._id}
+                style={{
+                  background: '#ffffff',
+                  borderRadius: '16px',
+                  border: '1px solid #e2e8f0',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+                }}
+              >
+                <img
+                  src={item.photo_url}
+                  alt={item.activity_title}
+                  style={{ width: '100%', height: '160px', objectFit: 'cover' }}
+                />
+                <div style={{ padding: '12px 14px' }}>
+                  <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>
+                    {item.activity_title}
+                  </div>
+                  {item.description && (
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                      {item.description}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '8px', fontWeight: 600 }}>
+                    📅 {item.date} • {item.teacher_name}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

@@ -106,8 +106,8 @@ const StartPage: React.FC = () => {
             <div className="start-page-content">
                 <header className="start-page-header animate-fade-in-down">
                     <h1 className="start-page-title">
-                       საბავშვო ბაღის პორტალი <br />
-                        <span style={{ color: selectedColor }}>eKindergarten</span>
+                       ანბანელა <br />
+                        <span style={{ color: selectedColor }}></span>
                     </h1>
                     <p className="start-page-subtitle">
                         საბავშვო ბაღის ელექტრონული მართვისა და დღის რეჟიმის სისტემა

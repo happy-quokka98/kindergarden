@@ -6,26 +6,37 @@ export async function GET(
   { params }: { params: Promise<{ grade: string }> }
 ) {
   const { grade: gradeParam } = await params;
-  const grade = parseInt(gradeParam, 10);
-  if (Number.isNaN(grade)) {
-    return NextResponse.json({ message: "Invalid grade" }, { status: 400 });
-  }
-
+  const decodedGrade = decodeURIComponent(gradeParam);
   const parallel = req.nextUrl.searchParams.get("parallel");
-  const classnameRegex = parallel
-    ? `^${grade}[\\s\\-_]*${parallel}$`
-    : `^${grade}`;
 
-  const db = await getDb();
+  const parsedGrade = parseInt(decodedGrade, 10);
+  const isNumeric = !Number.isNaN(parsedGrade);
 
-  // 1. Fetch matching classes first (checks both ID and classname fields in MongoDB)
-  const classes = await db.collection("class")
-    .find({
+  let classFilterQuery: any;
+  if (isNumeric) {
+    const classnameRegex = parallel
+      ? `^${parsedGrade}[\\s\\-_]*${parallel}$`
+      : `^${parsedGrade}`;
+    classFilterQuery = {
       $or: [
         { ID: { $regex: classnameRegex, $options: "i" } },
         { classname: { $regex: classnameRegex, $options: "i" } }
       ]
-    })
+    };
+  } else {
+    classFilterQuery = {
+      $or: [
+        { ID: { $regex: decodedGrade, $options: "i" } },
+        { classname: { $regex: decodedGrade, $options: "i" } }
+      ]
+    };
+  }
+
+  const db = await getDb();
+
+  // 1. Fetch matching classes first
+  const classes = await db.collection("class")
+    .find(classFilterQuery)
     .toArray();
   const classIds = classes.flatMap(c => [c._id, c._id.toString()]);
 

@@ -1,11 +1,11 @@
 :root {
-  --background: #f8fafc;
+  --background: #fafaf9;
   --foreground: #0f172a;
-  --primary-color: #2563eb;
-  --primary-glow: rgba(37, 99, 235, 0.2);
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(226, 232, 240, 0.8);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  --primary-color: #3b82f6;
+  --primary-glow: rgba(59, 130, 246, 0.25);
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(226, 232, 240, 0.9);
+  --glass-shadow: 0 12px 36px 0 rgba(37, 99, 235, 0.08);
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -14,8 +14,36 @@ html, body {
   padding: 0;
   overflow-x: hidden;
   width: 100%;
-  background-color: var(--background);
+  background: linear-gradient(135deg, #fff1f2 0%, #f0fdf4 25%, #f0f9ff 50%, #faf5ff 75%, #fff7ed 100%);
+  background-attachment: fixed;
   color: var(--foreground);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -100px;
+  left: -100px;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(253, 224, 71, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -100px;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 243, 208, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 h1, h2, h3, h4, h5, h6, .admin-page-title, .admin-view-title, .admin-card-label {
