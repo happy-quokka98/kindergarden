@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React from 'react';
 import { useColor } from '../ColorContext';
 import { IoArrowBack } from 'react-icons/io5';
 
@@ -16,7 +16,7 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ onAddTeacher, onCancel 
     return (
         <div className="admin-view-container animate-fade-in-down" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className="admin-form-container animate-zoom-in">
-                <h2 className="admin-form-title">მასწავლებლის დამატება</h2>
+                <h2 className="admin-form-title">თანამშრომლის (აღმზრდელი / მეთოდისტი) დამატება</h2>
                 <form onSubmit={onAddTeacher} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="admin-form-group">
                         <label className="admin-label">სახელი</label>
@@ -33,6 +33,13 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ onAddTeacher, onCancel 
                           * საწყისი პაროლი ავტომატურად იქნება პირადი ნომერი (პ/ნ)
                         </span>
                     </div>
+                    <div className="admin-form-group">
+                        <label className="admin-label">თანამდებობა / როლი</label>
+                        <select className="admin-select" name="role" defaultValue="teacher">
+                            <option value="teacher">აღმზრდელი (მასწავლებელი)</option>
+                            <option value="methodist">მეთოდისტი</option>
+                        </select>
+                    </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '20px' }}>
                         <button type="button" onClick={onCancel} className="admin-cancel-btn">
                             გაუქმება
@@ -47,4 +54,4 @@ const AddTeacherForm: React.FC<AddTeacherFormProps> = ({ onAddTeacher, onCancel 
     );
 };
 
-export default AddTeacherForm; 
+export default AddTeacherForm;

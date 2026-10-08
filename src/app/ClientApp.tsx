@@ -45,6 +45,7 @@ export default function ClientApp() {
                 <Route path="/student" element={<Student />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/teacher/*" element={<Teacher />} />
+                <Route path="/methodist/*" element={<Teacher />} />
               </Routes>
             </Suspense>
           </AppWrapper>

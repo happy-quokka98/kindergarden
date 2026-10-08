@@ -379,8 +379,15 @@ const Teacher: React.FC = () => {
           return { ...cls, teacherSubjects };
         })
         .filter((cls: any) => cls.teacherSubjects && cls.teacherSubjects.length > 0);
-      setTutorClasses(tutor);
-      setTeachesClasses(teaches);
+      
+      const isMethodist = loginData.role === "methodist";
+      if (isMethodist) {
+        setTutorClasses(allClasses);
+        setTeachesClasses(allClasses.map((cls: any) => ({ ...cls, teacherSubjects: ["ყველა აქტივობა"] })));
+      } else {
+        setTutorClasses(tutor);
+        setTeachesClasses(teaches);
+      }
       // Fetch teacher schedule
       setScheduleLoading(true);
       const scheduleRes = await fetch(
@@ -461,7 +468,8 @@ const Teacher: React.FC = () => {
 
   useEffect(() => {
     try {
-      if (!validateSession('teacher')) {
+      const loginRole = JSON.parse(localStorage.getItem("login") || "{}").role;
+      if (!validateSession() || (loginRole !== 'teacher' && loginRole !== 'methodist')) {
         clearAuthSession();
         navigate('/', { replace: true });
       }
@@ -621,9 +629,11 @@ const Teacher: React.FC = () => {
         <div className="admin-page-content">
           <header className="admin-page-header animate-fade-in-down">
             <h1 className="admin-page-title">
-              მასწავლებლის <span style={{ color: selectedColor }}>პანელი</span>
+              {loginData.role === "methodist" ? "მეთოდისტის" : "მასწავლებლის"} <span style={{ color: selectedColor }}>პანელი</span>
             </h1>
-            <p className="admin-page-subtitle">სასწავლო პროცესის მართვის სისტემა</p>
+            <p className="admin-page-subtitle">
+              {loginData.role === "methodist" ? "სასწავლო-მეთოდური პროცესის მართვის სისტემა" : "სასწავლო პროცესის მართვის სისტემა"}
+            </p>
           </header>
           <div className="admin-main-view animate-zoom-in" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             {children}
@@ -1869,11 +1879,9 @@ const Teacher: React.FC = () => {
     { key: "routine", label: "დღის რეჟიმი & კვება", badge: false },
     { key: "activityPhotos", label: "📸 აქტივობის ფოტოები", badge: false },
     { key: "groupSchedule", label: "ჯგუფის განრიგის შეტანა", badge: false },
-    { key: "homeroom", label: "მობარებული ჯგუფები", badge: false },
-    { key: "teaching", label: "ჯგუფების მეცადინეობა", badge: false },
+    { key: "homeroom", label: loginData.role === "methodist" ? "ყველა ჯგუფი" : "მობარებული ჯგუფები", badge: false },
     { key: "calendar", label: "ჩემი განრიგი", badge: false },
     { key: "notices", label: "განცხადებები", badge: hasUnreadTeacherNotices },
-    { key: "messages", label: "ჩატი", badge: hasUnreadTeacherMessages },
   ];
 
   // Main page content

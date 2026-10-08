@@ -11,6 +11,7 @@ interface Teacher {
     surname: string;
     user_ID: string;
     ID?: string;
+    role?: string;
 }
 
 interface Class {
@@ -39,13 +40,14 @@ const EditTeacherModal: React.FC<EditTeacherModalProps> = ({ isOpen, teacher, cl
                 surname: teacher.surname,
                 ID: idVal,
                 user_ID: idVal,
+                role: teacher.role || 'teacher',
             });
         }
     }, [teacher]);
 
     if (!isOpen || !formData) return null;
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
@@ -59,6 +61,7 @@ const EditTeacherModal: React.FC<EditTeacherModalProps> = ({ isOpen, teacher, cl
             surname: formData.surname,
             ID: idVal,
             user_ID: idVal,
+            role: formData.role || 'teacher',
         } as Teacher);
     };
 
@@ -74,20 +77,27 @@ const EditTeacherModal: React.FC<EditTeacherModalProps> = ({ isOpen, teacher, cl
                     <CloseIcon size={24} />
                 </button>
 
-                <h2 className="admin-form-title">მასწავლებლის რედაქტირება</h2>
+                <h2 className="admin-form-title">თანამშრომლის რედაქტირება</h2>
                 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div className="admin-form-group">
                         <label className="admin-label">სახელი</label>
-                        <input className="admin-input" type="text" name="name" value={formData.name} onChange={handleChange} />
+                        <input className="admin-input" type="text" name="name" value={formData.name} onChange={handleChange} required />
                     </div>
                     <div className="admin-form-group">
                         <label className="admin-label">გვარი</label>
-                        <input className="admin-input" type="text" name="surname" value={formData.surname} onChange={handleChange} />
+                        <input className="admin-input" type="text" name="surname" value={formData.surname} onChange={handleChange} required />
                     </div>
                     <div className="admin-form-group">
                         <label className="admin-label">პირადი ნომერი / ID (პ/ნ)</label>
-                        <input className="admin-input" type="text" name="ID" value={formData.ID || formData.user_ID || ''} onChange={handleChange} />
+                        <input className="admin-input" type="text" name="ID" value={formData.ID || formData.user_ID || ''} onChange={handleChange} required />
+                    </div>
+                    <div className="admin-form-group">
+                        <label className="admin-label">თანამდებობა / როლი</label>
+                        <select className="admin-select" name="role" value={formData.role || 'teacher'} onChange={handleChange}>
+                            <option value="teacher">აღმზრდელი (მასწავლებელი)</option>
+                            <option value="methodist">მეთოდისტი</option>
+                        </select>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '10px' }}>
                         <button type="button" onClick={onClose} className="admin-cancel-btn">
@@ -103,4 +113,4 @@ const EditTeacherModal: React.FC<EditTeacherModalProps> = ({ isOpen, teacher, cl
     );
 };
 
-export default EditTeacherModal; 
+export default EditTeacherModal;

@@ -693,21 +693,22 @@ const Admin: React.FC = () => {
     const handleDeleteTeacher = async (teacherId: string) => {
         const performDelete = async () => {
             try {
-                const res = await fetch(`/api/teacher/delete/${teacherId}`, { method: 'DELETE' });
+                const res = await fetch(`/api/teacher/delete/${encodeURIComponent(teacherId)}`, { method: 'DELETE' });
+                const data = await res.json().catch(() => ({}));
                 if (res.ok) {
-                    showPopup('მასწავლებელი წარმატებით წაიშალა.', 'success');
+                    showPopup('თანამშრომელი წარმატებით წაიშალა.', 'success');
                     fetchTeachers();
                 } else {
-                    showPopup('მასწავლებლის წაშლა ვერ მოხერხდა.', 'error');
+                    showPopup(`წაშლა ვერ მოხერხდა: ${data.message || 'შეცდომა'}`, 'error');
                 }
             } catch (err) {
-                showPopup('მასწავლებლის წაშლისას მოხდა შეცდომა.', 'error');
+                showPopup('თანამშრომლის წაშლისას მოხდა შეცდომა.', 'error');
             }
             setConfirmation(null);
         };
 
         setConfirmation({
-            message: 'დარწმუნებული ხართ, რომ გსურთ ამ მასწავლებლის წაშლა?',
+            message: 'დარწმუნებული ხართ, რომ გსურთ ამ თანამშრომლის წაშლა?',
             onConfirm: performDelete,
         });
     };
@@ -719,20 +720,22 @@ const Admin: React.FC = () => {
 
     const handleUpdateTeacher = async (updatedTeacher: Teacher) => {
         try {
-            const res = await fetch(`/api/teacher/update/${updatedTeacher._id}`, {
+            const targetId = updatedTeacher._id || updatedTeacher.user_ID || updatedTeacher.ID || '';
+            const res = await fetch(`/api/teacher/update/${encodeURIComponent(targetId)}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedTeacher),
             });
+            const data = await res.json().catch(() => ({}));
             if (res.ok) {
-                showPopup('მასწავლებელი წარმატებით განახლდა.', 'success');
+                showPopup('თანამშრომლის მონაცემები წარმატებით განახლდა.', 'success');
                 setIsEditTeacherModalOpen(false);
                 fetchTeachers();
             } else {
-                showPopup('მასწავლებლის განახლება ვერ მოხერხდა.', 'error');
+                showPopup(`განახლება ვერ მოხერხდა: ${data.message || 'შეცდომა'}`, 'error');
             }
         } catch (err) {
-            showPopup('მასწავლებლის განახლებისას მოხდა შეცდომა.', 'error');
+            showPopup('თანამშრომლის განახლებისას მოხდა შეცდომა.', 'error');
         }
     };
 
@@ -1062,15 +1065,15 @@ const Admin: React.FC = () => {
             });
 
             if (res.ok) {
-                showPopup('მასწავლებელი წარმატებით დაემატა.', 'success');
-                setView('teacherOptions');
-                fetchTeachers();
+                showPopup('თანამშრომელი წარმატებით დაემატა.', 'success');
+                await fetchTeachers();
+                setView('teacherList');
             } else {
-                const data = await res.json();
-                showPopup(`მასწავლებლის დამატება ვერ მოხერხდა: ${data.message}`, 'error');
+                const data = await res.json().catch(() => ({}));
+                showPopup(`დამატება ვერ მოხერხდა: ${data.message || 'შეცდომა'}`, 'error');
             }
         } catch (err) {
-            showPopup('მასწავლებლის დამატებისას მოხდა შეცდომა.', 'error');
+            showPopup('დამატებისას მოხდა შეცდომა.', 'error');
         }
     };
 

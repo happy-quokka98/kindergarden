@@ -54,6 +54,7 @@ export function validateSession(requiredRole?: string): boolean {
       if (!studentId || !classId) return false;
     } else if (
       loginData.role === 'teacher' ||
+      loginData.role === 'methodist' ||
       loginData.role === 'admin' ||
       loginData.role === 'superadmin' ||
       loginData.role === 'resource_center'

@@ -15,6 +15,7 @@ interface Teacher {
     surname: string;
     user_ID: string;
     ID?: string;
+    role?: string;
 }
 
 interface TeacherListProps {
@@ -45,8 +46,9 @@ const TeacherList: React.FC<TeacherListProps> = ({
         const fullName = `${name} ${surname}`;
         const fullNameRev = `${surname} ${name}`;
         const id = (teacher.ID || teacher.user_ID || '').toLowerCase();
+        const roleStr = teacher.role === 'methodist' ? 'მეთოდისტი' : 'აღმზრდელი';
 
-        if (fullName.includes(query) || fullNameRev.includes(query) || id.includes(query)) return true;
+        if (fullName.includes(query) || fullNameRev.includes(query) || id.includes(query) || roleStr.toLowerCase().includes(query)) return true;
 
         const parts = query.split(/\s+/);
         return parts.every(part => name.includes(part) || surname.includes(part) || id.includes(part));
@@ -58,7 +60,7 @@ const TeacherList: React.FC<TeacherListProps> = ({
                 <button className="admin-back-btn" onClick={onBackClick}>
                     <ArrowLeftIcon size={20} /> უკან
                 </button>
-                <h2 className="admin-view-title">მასწავლებელთა სია ({filteredTeachers.length})</h2>
+                <h2 className="admin-view-title">თანამშრომელთა სია ({filteredTeachers.length})</h2>
             </header>
 
             {/* Manual Search Bar */}
@@ -67,7 +69,7 @@ const TeacherList: React.FC<TeacherListProps> = ({
                     <SearchIcon style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} size={18} />
                     <input
                         type="text"
-                        placeholder="ძებნა ხელით (სახელი, გვარი, პ/ნ)..."
+                        placeholder="ძებნა ხელით (სახელი, გვარი, პ/ნ, როლი)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -87,59 +89,79 @@ const TeacherList: React.FC<TeacherListProps> = ({
             </div>
 
             <div className="admin-list-container animate-zoom-in">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>სახელი</th>
-                            <th>გვარი</th>
-                            <th>პ/ნ</th>
-                            <th style={{ textAlign: 'center' }}>ქმედება</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredTeachers.length > 0 ? filteredTeachers.map((teacher) => (
-                            <tr key={teacher._id}>
-                                <td>{teacher.name}</td>
-                                <td>{teacher.surname}</td>
-                                <td>{teacher.ID || teacher.user_ID}</td>
-                                <td>
-                                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                                        <button 
-                                            className="admin-action-btn edit" 
-                                            onClick={() => onEditTeacher(teacher)} 
-                                            title="რედაქტირება"
-                                        >
-                                            <EditIcon />
-                                        </button>
-                                        <button 
-                                            className="admin-action-btn delete" 
-                                            onClick={() => onDeleteTeacher(teacher._id)} 
-                                            title="წაშლა"
-                                        >
-                                            <TrashIcon />
-                                        </button>
-                                        <button 
-                                            className="admin-action-btn reset" 
-                                            onClick={() => onResetPassword(teacher._id)} 
-                                            title="აღდგენა"
-                                        >
-                                            <RestoreIcon />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        )) : (
+                <div className="admin-table-wrapper">
+                    <table className="admin-table">
+                        <thead>
                             <tr>
-                                <td colSpan={4} style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-                                    მასწავლებელი ვერ მოიძებნა
-                                </td>
+                                <th>სახელი</th>
+                                <th>გვარი</th>
+                                <th>პ/ნ</th>
+                                <th style={{ textAlign: 'center' }}>როლი</th>
+                                <th style={{ textAlign: 'center' }}>ქმედება</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {filteredTeachers.length > 0 ? filteredTeachers.map((teacher) => {
+                                const idToPass = teacher._id || teacher.user_ID || teacher.ID || '';
+                                return (
+                                    <tr key={idToPass}>
+                                        <td>{teacher.name}</td>
+                                        <td>{teacher.surname}</td>
+                                        <td>{teacher.ID || teacher.user_ID}</td>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <span style={{
+                                                padding: '4px 12px',
+                                                borderRadius: '20px',
+                                                fontSize: '12px',
+                                                fontWeight: 800,
+                                                background: teacher.role === 'methodist' ? '#f3e8ff' : '#e0f2fe',
+                                                color: teacher.role === 'methodist' ? '#7e22ce' : '#0369a1',
+                                                border: teacher.role === 'methodist' ? '1px solid #d8b4fe' : '1px solid #bae6fd',
+                                                display: 'inline-block'
+                                            }}>
+                                                {teacher.role === 'methodist' ? '🎓 მეთოდისტი' : '🎨 აღმზრდელი'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                                                <button 
+                                                    className="admin-action-btn edit" 
+                                                    onClick={() => onEditTeacher(teacher)} 
+                                                    title="რედაქტირება"
+                                                >
+                                                    <EditIcon />
+                                                </button>
+                                                <button 
+                                                    className="admin-action-btn delete" 
+                                                    onClick={() => onDeleteTeacher(idToPass)} 
+                                                    title="წაშლა"
+                                                >
+                                                    <TrashIcon />
+                                                </button>
+                                                <button 
+                                                    className="admin-action-btn reset" 
+                                                    onClick={() => onResetPassword(idToPass)} 
+                                                    title="აღდგენა"
+                                                >
+                                                    <RestoreIcon />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            }) : (
+                                <tr>
+                                    <td colSpan={5} style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
+                                        თანამშრომელი ვერ მოიძებნა
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
 };
 
-export default TeacherList; 
+export default TeacherList;

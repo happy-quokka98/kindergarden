@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import { RiAdminFill } from "react-icons/ri";
-import { FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa";
+import { FaUserGraduate, FaChalkboardTeacher, FaBookReader } from "react-icons/fa";
 import { IconType } from 'react-icons';
 import { useColor } from './../../components/ColorContext';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,7 @@ import './StartPage.css';
 const roleMap: Record<string, string> = {
     'მშობელი / აღსაზრდელი': 'student',
     'აღმზრდელი': 'teacher',
+    'მეთოდისტი': 'methodist',
     'ადმინისტრატორი': 'admin',
 };
 
@@ -51,6 +52,7 @@ const StartPage: React.FC = () => {
     const items: { icon: IconType; label: string; action: 'login' | 'register' }[] = [
         { icon: FaUserGraduate, label: 'მშობელი / აღსაზრდელი', action: 'login' },
         { icon: FaChalkboardTeacher, label: 'აღმზრდელი', action: 'login' },
+        { icon: FaBookReader, label: 'მეთოდისტი', action: 'login' },
         { icon: RiAdminFill, label: 'ადმინისტრატორი', action: 'login' },
     ];
 

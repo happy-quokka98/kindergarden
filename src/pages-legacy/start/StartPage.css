@@ -107,10 +107,10 @@
 
 .start-page-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 24px;
     width: 100%;
-    max-width: 1000px;
+    max-width: 1100px;
 }
 
 .role-card {
@@ -118,12 +118,12 @@
     backdrop-filter: blur(16px);
     border: 2px solid #e2e8f0;
     border-radius: 28px;
-    padding: 40px 30px;
+    padding: 36px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
     cursor: pointer;
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
@@ -152,10 +152,20 @@
 }
 
 .role-card:nth-child(3) {
+    border-color: #ddd6fe;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 243, 255, 0.9));
+}
+.role-card:nth-child(3) .role-card-icon-wrapper {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    color: white;
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+}
+
+.role-card:nth-child(4) {
     border-color: #bae6fd;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 249, 255, 0.9));
 }
-.role-card:nth-child(3) .role-card-icon-wrapper {
+.role-card:nth-child(4) .role-card-icon-wrapper {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
