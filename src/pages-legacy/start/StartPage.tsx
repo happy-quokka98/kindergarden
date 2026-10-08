@@ -9,7 +9,7 @@ import LoginModal from '../../components/LoginModal';
 // import RegisterModal from '../../components/RegisterModal';
 import InfoModal from '../../components/InfoModal';
 
-import { clearAuthSession, validateSession } from '@/lib/auth';
+import { clearAuthSession, validateSession, verifyAuthMe } from '@/lib/auth';
 import './StartPage.css';
 
 const roleMap: Record<string, string> = {
@@ -29,20 +29,24 @@ const StartPage: React.FC = () => {
     const [infoModal, setInfoModal] = useState<{ isOpen: boolean; message: string; isSuccess: boolean }>({ isOpen: false, message: '', isSuccess: false });
 
     useEffect(() => {
-        try {
-            const loginDataStr = localStorage.getItem('login');
-            if (loginDataStr) {
-                if (validateSession()) {
-                    const loginData = JSON.parse(loginDataStr);
-                    navigate(`/${loginData.role}`, { replace: true });
-                } else {
-                    clearAuthSession();
+        const checkAuth = async () => {
+            try {
+                const loginDataStr = localStorage.getItem('login');
+                if (loginDataStr) {
+                    const authResult = await verifyAuthMe();
+                    if (authResult.authenticated && authResult.user) {
+                        navigate(`/${authResult.user.role}`, { replace: true });
+                    } else {
+                        clearAuthSession();
+                    }
                 }
+            } catch (e) {
+                console.error(e);
+                clearAuthSession();
             }
-        } catch (e) {
-            console.error(e);
-            clearAuthSession();
-        }
+        };
+
+        checkAuth();
 
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);

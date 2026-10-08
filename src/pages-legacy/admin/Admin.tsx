@@ -41,7 +41,7 @@ import TopStudentsMonitor from '../../components/admin/TopStudentsMonitor';
 import HomeworkModule from '../../components/HomeworkModule';
 
 import { FaShieldAlt, FaAward, FaCheckDouble, FaTasks } from 'react-icons/fa';
-import { clearAuthSession, validateSession } from '@/lib/auth';
+import { clearAuthSession, validateSession, verifyAuthMe } from '@/lib/auth';
 import './Admin.css';
 
 const ArrowLeftIcon = FaArrowLeftLong as React.FC<{ size?: number | string }>;
@@ -543,18 +543,21 @@ const Admin: React.FC = () => {
     ];
 
     useEffect(() => {
-        try {
-            if (!validateSession('admin')) {
+        const checkAuth = async () => {
+            try {
+                const authRes = await verifyAuthMe('admin');
+                if (!authRes.authenticated || !authRes.user) {
+                    clearAuthSession();
+                    navigate('/', { replace: true });
+                    return;
+                }
+                setCurrentUser(authRes.user);
+            } catch {
                 clearAuthSession();
                 navigate('/', { replace: true });
-                return;
             }
-            const loginData = JSON.parse(localStorage.getItem('login') || '{}');
-            setCurrentUser(loginData);
-        } catch {
-            clearAuthSession();
-            navigate('/', { replace: true });
-        }
+        };
+        checkAuth();
     }, [navigate]);
 
     const fetchAdmins = async () => {

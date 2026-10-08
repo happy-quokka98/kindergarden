@@ -15,7 +15,7 @@ import ColorPalette from "./../../components/ColorPalette";
 import { useNavigate, Routes, Route, useParams } from "react-router-dom"; // For navigation after logout and useParams
 import InfoModal from "../../components/InfoModal";
 import DetailedGradeHistory from "../../components/admin/DetailedGradeHistory";
-import { clearAuthSession, validateSession } from "@/lib/auth";
+import { clearAuthSession, validateSession, verifyAuthMe } from "@/lib/auth";
 import MessagePopup from "../../components/MessagePopup";
 import GroupScheduleManager from "../../components/teacher/GroupScheduleManager";
 import ActivityPhotoUploader from "../../components/teacher/ActivityPhotoUploader";
@@ -467,16 +467,19 @@ const Teacher: React.FC = () => {
 
 
   useEffect(() => {
-    try {
-      const loginRole = JSON.parse(localStorage.getItem("login") || "{}").role;
-      if (!validateSession() || (loginRole !== 'teacher' && loginRole !== 'methodist')) {
+    const checkAuth = async () => {
+      try {
+        const authRes = await verifyAuthMe('teacher');
+        if (!authRes.authenticated || !authRes.user) {
+          clearAuthSession();
+          navigate('/', { replace: true });
+        }
+      } catch {
         clearAuthSession();
         navigate('/', { replace: true });
       }
-    } catch {
-      clearAuthSession();
-      navigate('/', { replace: true });
-    }
+    };
+    checkAuth();
   }, [navigate]);
 
   const handleLogout = () => {

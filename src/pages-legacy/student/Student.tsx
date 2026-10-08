@@ -21,7 +21,7 @@ import {
   FaCreditCard
 } from 'react-icons/fa';
 import { getPaymentStatus } from '@/lib/payment';
-import { clearAuthSession, validateSession } from '@/lib/auth';
+import { clearAuthSession, validateSession, verifyAuthMe } from '@/lib/auth';
 import '../admin/Admin.css';
 
 const FaSignOutAltIcon = FaSignOutAlt as React.ComponentType<any>;
@@ -169,15 +169,19 @@ const Student: React.FC = () => {
     const studentFullName = studentInfo ? `${studentInfo.name} ${studentInfo.surname}` : 'მოსწავლე';
 
     useEffect(() => {
-        try {
-            if (!validateSession('student')) {
+        const checkAuth = async () => {
+            try {
+                const authRes = await verifyAuthMe('student');
+                if (!authRes.authenticated || !authRes.user) {
+                    clearAuthSession();
+                    navigate('/', { replace: true });
+                }
+            } catch {
                 clearAuthSession();
                 navigate('/', { replace: true });
             }
-        } catch {
-            clearAuthSession();
-            navigate('/', { replace: true });
-        }
+        };
+        checkAuth();
     }, [navigate]);
 
     const handleLogout = () => {
